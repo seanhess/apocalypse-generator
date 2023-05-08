@@ -1,19 +1,10 @@
 # bot.py
 import os
 import discord
-from discord import app_commands
+from discord import app_commands, SelectOption, Interaction
 from discord.ext import commands
-
-TOKEN = os.getenv('DISCORD_TOKEN')
-
-class MissingAPIKey(Exception):
-  """Raised when API Key environment variable is missing"""
-
-if TOKEN is None:
-  raise MissingAPIKey()
-
-print("TOKEN", TOKEN)
-
+from discord.app_commands import Choice
+from typing import Any, Literal
 
 ENIGMA_GUILD=1105180075558707293
 
@@ -25,7 +16,8 @@ intents.members = True
 client = discord.Client(intents=intents)
 # bot = commands.Bot(command_prefix='$', intents=intents)
 
-tree = app_commands.CommandTree(client)
+tree:Any = app_commands.CommandTree(client)
+
 
 
 @client.event
@@ -40,9 +32,14 @@ async def on_ready():
 #     await ctx.channel.send("pong")
 
 @tree.command(name = 'ping', description = 'testing slash commands!', guild=discord.Object(id=ENIGMA_GUILD))
-async def ping(ctx):
-    await ctx.response.send_message("pong")
-    # await interaction.response.send_message("hello")
+# @app_commands.choices(choices=[
+#     Choice(name="Rock", value="rock"),
+#     Choice(name="Paper", value="paper"),
+#     Choice(name="Scissors", value="scissors"),
+#   ])
+# @app_commands.choices()
+async def ping(ctx:Interaction, weapon:Literal['apple', 'banana', 'cherry'], asdf:str = "testing"):
+    await ctx.response.send_message("pong: " + weapon + " " + asdf)
 
 # @bot.command()
 # async def hello(ctx, *, arg):
@@ -73,7 +70,8 @@ async def ping(ctx):
 
 # client.run(TOKEN)
 # bot.run(TOKEN)
-client.run(TOKEN)
+TOKEN=os.getenv("DISCORD_TOKEN")
+client.run(TOKEN if TOKEN else "")
 
 
 
