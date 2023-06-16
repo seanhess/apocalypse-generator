@@ -94,6 +94,23 @@ async def move(ctx:Interaction, faction:Optional[Faction]):
   output = "\n".join(names)
   await ctx.response.send_message(output)
 
+@tree.command(name = 'roll', description = 'roll some dice', guild=discord.Object(id=ENIGMA_GUILD))
+async def roll(ctx:Interaction, dice:str):
+
+  total = 0
+  lstDice = []
+  [count, sides] = dice.split("d")
+  countI = int(count)
+  sidesI = int(sides)
+  for num in range(countI):
+    die = random.randint(1, sidesI)
+    lstDice.append("die #"+str(num+1)+': ' + str(die))
+    total = total + die
+  dieStr = "total: " + str(total) + "\n"
+  for lstDie in lstDice:
+    dieStr += lstDie + "\n"
+  await ctx.response.send_message(dieStr)
+    
 
 @tree.command(name = 'view', description = 'Test view', guild=discord.Object(id=ENIGMA_GUILD))
 async def view(ctx:Interaction):
