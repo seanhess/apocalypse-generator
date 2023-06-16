@@ -2,16 +2,21 @@
 import os
 import discord
 import random
+
+import lib.dungeon_world
+import lib.component
+from discord.emoji import Emoji
+from discord.enums import ButtonStyle
+from discord.partial_emoji import PartialEmoji
 import rules
 from discord.ui import Button
 from rules import Move
 from discord import app_commands, SelectOption, Interaction
 # from discord.ext import commands
 # from discord.app_commands import Choice
-from typing import Any, Literal, Optional
+from typing import Any, Literal, Optional, Union, List
 
 ENIGMA_GUILD=1105180075558707293
-
 
 intents = discord.Intents().default()
 intents.message_content = True
@@ -22,46 +27,56 @@ client = discord.Client(intents=intents)
 
 tree:Any = app_commands.CommandTree(client)
 
-
-
 @client.event
 async def on_ready():
   await tree.sync(guild=discord.Object(id=ENIGMA_GUILD))
   print("Apocalypse Bot is revved up and ready to go!")
 
 
-class SimpleView(discord.ui.View):
 
-  foo : Optional[bool] = None
-  message: Optional[discord.Message]
+class McMoveView(discord.ui.View):
 
-  async def disable_all_items(self):
-    for item in self.children:
-      print("DISAVLING")
-      item.disabled = True
+  moves: list[Move]
 
-    # This is how you update the message!
-    # await self.message.edit(view=self)
+  def add_buttons(self, moves:list[Move]):
+    self.moves = moves
+    for move in moves:
+      button = lib.component.DynButton(label=move.name, style=discord.ButtonStyle.green)
+      button.set_callback(self.callback)
+      self.add_item(button)
+
+  async def callback(self, interaction:Interaction):
+    print("CALLED!", self)
+
+    children:List[lib.component.DynButton] = self.children # type: ignore
+    
+    # Disable all buttons
+    for item in children:
+        item.disabled = True
+
+    # Update the message
+    await interaction.response.edit_message(content="Buttons are now disabled", view=self)
 
   async def on_timeout(self) -> None:
-    await self.disable_all_items()
-    if self.message:
-      await self.message.channel.send("Timeout")
-    else:
-      print("NO MESSAGE!")
+    # await self.disable_all_items()
+    # if self.message:
+    #   await self.message.channel.send("Timeout")
+    # else:
+    print("Timeout!")
 
-  @discord.ui.button(label="Hello", style=discord.ButtonStyle.success)
-  async def hello(self, interaction:Interaction, button: discord.ui.Button):
-    # This sends another message
-    print("- CLICK HELLO")
-    await interaction.response.send_message("World")
-    print("- AFTER HELLO")
+  # @discord.ui.button(label="Hello", style=discord.ButtonStyle.success)
+  # async def hello(self, interaction:Interaction, button: discord.ui.Button):
+  #   # This sends another message
+  #   print("- CLICK HELLO")
+  #   await interaction.response.send_message("World")
+  #   print("- AFTER HELLO")
 
-  @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red)
-  async def cancel(self, interaction:Interaction, button: discord.ui.Button):
-    print("- CLICK CANCEL")
-    await self.disable_all_items()
-    await interaction.response.edit_message(view=self)
+  # @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red)
+  # async def cancel(self, interaction:Interaction, button: discord.ui.Button):
+  #   print("- CLICK CANCEL")
+  #   await self.disable_all_items()
+  #   await interaction.response.edit_message(view=self)
+
 
 
 Faction = Literal['Mortalis', 'Night', 'Power', 'Wild']
@@ -82,10 +97,12 @@ async def move(ctx:Interaction, faction:Optional[Faction]):
 
 @tree.command(name = 'view', description = 'Test view', guild=discord.Object(id=ENIGMA_GUILD))
 async def view(ctx:Interaction):
-  view = SimpleView(timeout=180)
-  # button:Button = discord.ui.Button(label="Click me")
+  view = McMoveView(timeout=180)
+  button:Button = discord.ui.Button(label="Click me")
   # view.add_item(button)
-  view.message = ctx.message
+  view.add_buttons(rules.moves)
+  # view.message = ctx.message
+  # view.moves = rules.moves
 
   await ctx.response.send_message(view=view)
   print("- done")
@@ -165,10 +182,6 @@ def mc_moves(faction:Optional[Faction]) -> list[Move]:
 #   return
 
 
-# client.run(TOKEN)
-# bot.run(TOKEN)
-TOKEN=os.getenv("DISCORD_TOKEN")
-client.run(TOKEN if TOKEN else "")
 
 
 

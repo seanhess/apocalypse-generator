@@ -1,2 +1,4 @@
 .envrc
 *.pyc
+__pycache__
+data
