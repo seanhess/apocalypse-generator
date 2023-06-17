@@ -1,26 +1,59 @@
 import discord
 from discord import Interaction
-from lib.dungeon_world import Character
+from discord.ui import TextInput, View
+from lib.dungeon_world import Character, Stat
 from lib.component import DynButton
+from typing import Callable
 
 class CharacterView(discord.ui.View):
 
     character: Character
 
-    def set_character(self, character:Character):
-        self.character = character
+    def set_character(self, char:Character):
+        self.character = char
         print("CHARACTER!")
 
         # item = discord.ui.Item()
-        str = DynButton(label="str", style=discord.ButtonStyle.success)
-        str.set_callback(lambda i: self.click(i))
-        self.add_item(str)
+        btn_str = StatButton("STR", stat=char.STR, click = lambda i: self.click(i, "STR", char.STR))
+        self.add_item(btn_str)
 
-    async def click(self, interaction:Interaction):
-        print("CLICK " + str(self.character.STR.value))
+        # Needs to be in a modal
+        # txt_name = TextInput[View](label="label")
+        # self.add_item(txt_name)
+
+    async def click(self, interaction:Interaction, name:str, stat:Stat):
+        print("CLICK " + name + " " + bonus_str(stat))
         await interaction.response.edit_message(content="Clicked Strength", view=self)
 
 
+class StatButton(discord.ui.Button):
+
+    stat: Stat
+    name: str
+
+    def __init__(self, name:str, stat:Stat, click:Callable):
+        super().__init__(
+            label=name + ": " + bonus_str(stat),
+            style=discord.ButtonStyle.success,
+        )
+        self.callback = click # type: ignore
+        self.name = name
+        self.stat = stat
+
+
+
+
+    # async def click(self, interaction:Interaction):
+    #     await interaction.response.edit_message(content="Clicked: " + self.stat.encode(), view=self)
+
+
+
+def bonus_str(stat:Stat) -> str:
+    if stat.to_bonus() >=0:
+        return "+" + str(stat.to_bonus())
+    else:
+        return str(stat.to_bonus())
+    
 
 
 

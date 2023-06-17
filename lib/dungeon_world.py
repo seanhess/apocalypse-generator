@@ -23,7 +23,7 @@ class Stat():
             return -3
         else:
             return -4
-    
+
     def encode(self) -> str:
         return str(self.value)
 

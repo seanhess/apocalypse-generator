@@ -182,8 +182,7 @@ class McMoveView(discord.ui.View):
   def add_buttons(self, moves:list[Move]):
     self.moves = moves
     for move in moves:
-      button = lib.component.DynButton(label=move.name, style=discord.ButtonStyle.green)
-      button.set_callback(self.callback)
+      button = lib.component.DynButton(label=move.name, callback=self.callback, style=discord.ButtonStyle.green)
       self.add_item(button)
 
   async def callback(self, interaction:Interaction):

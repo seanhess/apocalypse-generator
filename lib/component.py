@@ -1,5 +1,7 @@
 import discord
 
 class DynButton(discord.ui.Button):
-    def set_callback(self, value):
-        self.callback = value # type: ignore
+
+    def __init__(self, callback, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.callback = callback
