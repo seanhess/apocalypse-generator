@@ -3,7 +3,9 @@ Name = str
 
 class Stat():
     value: int
-    def __init__(self, value:int):
+    name: str
+    def __init__(self, name:str, value:int):
+        self.name = name
         self.value = value
 
     def to_bonus(self) -> Bonus:
@@ -25,11 +27,12 @@ class Stat():
             return -4
 
     def encode(self) -> str:
-        return str(self.value)
+        return self.name+"="+str(self.value)
 
     @classmethod
     def decode(cls, input:str):
-        return Stat(int(input))
+        name, rest = input.split("=")
+        return Stat(name, int(input))
 
 class Character():
 
@@ -42,14 +45,14 @@ class Character():
     INT: Stat
     CHA: Stat
 
-    def __init__(self, name:str, str: Stat, dex: Stat, con: Stat, wis: Stat, int: Stat, cha: Stat):
+    def __init__(self, name:str):
         self.name = name
-        self.STR = str
-        self.DEX = dex
-        self.CON = con
-        self.WIS = wis
-        self.INT = int
-        self.CHA = cha
+        self.STR = Stat("STR", 10)
+        self.DEX = Stat("DEX", 10)
+        self.CON = Stat("CON", 10)
+        self.WIS = Stat("WIS", 10)
+        self.INT = Stat("INT", 10)
+        self.CHA = Stat("CHA", 10)
 
     def encode(self) -> str:
         stats = [self.STR, self.DEX, self.CON, self.WIS, self.INT, self.CHA]
@@ -60,4 +63,10 @@ class Character():
     def decode(cls, input:str):
         [name, rest] = input.split(":")
         [str, dex, con, wis, int, cha] = map(lambda s: Stat.decode(s),rest.split("|"))
-        return Character(name=name, str=str, dex=dex, con=con, wis=wis, int=int, cha=cha)
+        char = Character(name=name)
+        char.STR = str
+        char.DEX = dex
+        char.CON = con
+        char.WIS = wis
+        char.INT = int
+        char.CHA = cha

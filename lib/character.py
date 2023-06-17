@@ -1,9 +1,10 @@
 import discord
 from discord import Interaction
-from discord.ui import TextInput, View
+from discord.ui import TextInput, View, Modal
 from lib.dungeon_world import Character, Stat
 from lib.component import DynButton
 from typing import Callable
+from discord.components import ActionRow
 
 class CharacterView(discord.ui.View):
 
@@ -14,16 +15,38 @@ class CharacterView(discord.ui.View):
         print("CHARACTER!")
 
         # item = discord.ui.Item()
-        btn_str = StatButton("STR", stat=char.STR, click = lambda i: self.click(i, "STR", char.STR))
+        btn_str = StatButton("STR", char.STR, lambda i: self.click(i, "STR", char.STR))
+        btn_dex = StatButton("DEX", char.DEX, lambda i: self.click(i, "DEX", char.DEX))
+        btn_con = StatButton("CON", char.CON, lambda i: self.click(i, "CON", char.CON))
+        btn_int = StatButton("INT", char.INT, lambda i: self.click(i, "INT", char.INT))
+        btn_wis = StatButton("WIS", char.WIS, lambda i: self.click(i, "WIS", char.WIS))
+        btn_cha = StatButton("CHA", char.CHA, lambda i: self.click(i, "CHA", char.CHA))
+
+        # btn_name = DynButton(label=char.name, style=discord.ButtonStyle.primary, callback=self.edit)
+        # self.add_item(btn_name)
+
         self.add_item(btn_str)
+        self.add_item(btn_dex)
+        self.add_item(btn_con)
+        self.add_item(btn_int)
+        self.add_item(btn_wis)
+        self.add_item(btn_cha)
 
         # Needs to be in a modal
         # txt_name = TextInput[View](label="label")
         # self.add_item(txt_name)
 
     async def click(self, interaction:Interaction, name:str, stat:Stat):
-        print("CLICK " + name + " " + bonus_str(stat))
-        await interaction.response.edit_message(content="Clicked Strength", view=self)
+        # How to edit existing message
+        # await interaction.response.edit_message(content="Clicked Strength", view=self)
+
+        # How to add a new message
+        await interaction.response.send_message("CLICKED " + name)
+
+    # async def edit(self, interaction:Interaction):
+    #     print("EDIT")
+    #     await interaction.response.edit_message(view=modal)
+
 
 
 class StatButton(discord.ui.Button):

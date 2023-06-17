@@ -3,7 +3,7 @@ import os
 import discord
 import random
 
-from lib.dungeon_world import Character, Name
+from lib.dungeon_world import Character, Name, Stat
 import lib.component
 from lib.storage import character_find
 from lib.character import CharacterView
@@ -62,13 +62,35 @@ async def move(ctx:Interaction, faction:Optional[Faction]):
   await ctx.response.send_message(output)
 
 
+Command = Literal['Load', 'STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA']
+
 @tree.command(name = 'character', description = 'Create or select a character', guild=discord.Object(id=ENIGMA_GUILD))
-async def character(ctx:Interaction, name:str):
+async def character(ctx:Interaction, name:str, command:Command = 'Load', stat:int = 10):
+
   char = character_find(characters, name)
+
+  if command == 'STR':
+    char.STR = Stat(command, stat)
+
+  elif command == 'DEX':
+    char.DEX = Stat(command, stat)
+
+  elif command == 'CON':
+    char.CON = Stat(command, stat)
+
+  elif command == 'INT':
+    char.INT = Stat(command, stat)
+
+  elif command == 'WIS':
+    char.WIS = Stat(command, stat)
+
+  elif command == 'CHA':
+    char.CHA = Stat(command, stat)
+
   view = CharacterView(timeout=10)
   view.set_character(char)
   await ctx.response.send_message(char.name, view=view)
-  # await ctx.response.send_message("HI:" + char.name)
+
 
 
 @tree.command(name = 'roll', description = 'roll some dice', guild=discord.Object(id=ENIGMA_GUILD))

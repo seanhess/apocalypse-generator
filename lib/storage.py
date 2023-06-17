@@ -29,5 +29,5 @@ def character_find(characters: Dict[Name, Character], name:Name):
         return characters.get(name)
     
     else:
-        characters[name] = Character(name, Stat(10), Stat(10), Stat(10), Stat(10), Stat(10), Stat(10))
+        characters[name] = Character(name)
         return characters.get(name)
