@@ -94,22 +94,31 @@ async def move(ctx:Interaction, faction:Optional[Faction]):
   output = "\n".join(names)
   await ctx.response.send_message(output)
 
-@tree.command(name = 'roll', description = 'roll some dice', guild=discord.Object(id=ENIGMA_GUILD))
-async def roll(ctx:Interaction, dice:str):
-
-  total = 0
+@tree.command(name='roll', description='roll some dice', guild=discord.Object(id=ENIGMA_GUILD))
+async def roll(ctx: Interaction, dice: str):
   lstDice = []
-  [count, sides] = dice.split("d")
+  count, sides = dice.split('d')
+  if '+' in sides:
+    sides, bonus = sides.split('+')
+    bonusI = int(bonus)
+  else:
+    bonusI = 0
   countI = int(count)
   sidesI = int(sides)
+  total = bonusI
+  
   for num in range(countI):
     die = random.randint(1, sidesI)
-    lstDice.append("die #"+str(num+1)+': ' + str(die))
+    lstDice.append(str(die))
     total = total + die
-  dieStr = "total: " + str(total) + "\n"
-  for lstDie in lstDice:
-    dieStr += lstDie + "\n"
-  await ctx.response.send_message(dieStr)
+
+  if bonusI != 0: embed = discord.Embed(title="Rolled " + dice, color=discord.Color.yellow())
+  embed = discord.Embed(title="Rolled " + dice, color=discord.Color.yellow()) #color can change to the characters selected color
+  embed.add_field(name="Total", value=total, inline=False)
+
+  for num, item in enumerate(lstDice):
+    embed.add_field(name="Die " + str(num), value=item, inline=True)
+  await ctx.response.send_message(embed=embed)
     
 
 @tree.command(name = 'view', description = 'Test view', guild=discord.Object(id=ENIGMA_GUILD))
