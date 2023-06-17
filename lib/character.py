@@ -22,8 +22,8 @@ class CharacterView(discord.ui.View):
         btn_wis = StatButton("WIS", char.WIS, lambda i: self.click(i, "WIS", char.WIS))
         btn_cha = StatButton("CHA", char.CHA, lambda i: self.click(i, "CHA", char.CHA))
 
-        # btn_name = DynButton(label=char.name, style=discord.ButtonStyle.primary, callback=self.edit)
-        # self.add_item(btn_name)
+        btn_name = DynButton(label=char.name, style=discord.ButtonStyle.primary, callback=self.edit)
+        self.add_item(btn_name)
 
         self.add_item(btn_str)
         self.add_item(btn_dex)
@@ -43,10 +43,29 @@ class CharacterView(discord.ui.View):
         # How to add a new message
         await interaction.response.send_message("CLICKED " + name)
 
-    # async def edit(self, interaction:Interaction):
-    #     print("EDIT")
-    #     await interaction.response.edit_message(view=modal)
 
+    async def edit(self, interaction:Interaction):
+        print("EDIT")
+        modal = Questionnaire()
+        modal.on_submit = self.edited # type: ignore
+        await interaction.response.send_modal(modal)
+        print("AFTER")
+
+
+    async def edited(self, interaction:Interaction):
+        print("EDITED")
+        await interaction.response.edit_message(content="Edited :)", view=self)
+
+
+
+
+
+class Questionnaire(Modal, title='Questionnaire Response'):
+    name = TextInput[View](label='Name')
+    answer = TextInput[View](label='Answer', style=discord.TextStyle.paragraph)
+
+    async def on_submit(self, interaction: discord.Interaction):
+        await interaction.response.send_message(f'Thanks for your response, {self.name}!', ephemeral=True)
 
 
 class StatButton(discord.ui.Button):

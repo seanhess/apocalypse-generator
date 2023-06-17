@@ -11,6 +11,7 @@ from discord.emoji import Emoji
 from discord.enums import ButtonStyle
 from discord.partial_emoji import PartialEmoji
 import rules
+from discord import ui
 from discord.ui import Button
 from rules import Move
 from discord import app_commands, SelectOption, Interaction
@@ -66,10 +67,10 @@ async def move(ctx:Interaction, faction:Optional[Faction]):
   await ctx.response.send_message(output)
 
 
-Command = Literal['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA', '']
+Command = Literal['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA', '_']
 
 @tree.command(name = 'character', description = 'Create or select a character', guild=discord.Object(id=ENIGMA_GUILD))
-async def character(ctx:Interaction, name:str, command:Command = '', stat:int = 10):
+async def character(ctx:Interaction, name:str, command:Command = '_', stat:int = 10):
 
   print("CHARACTER", characters)
   char = character_find(characters, name)
@@ -129,29 +130,6 @@ async def roll(ctx:Interaction, dice:str):
     embed.add_field(name="Die " + str(num), value=item, inline=True)
   await ctx.response.send_message(embed=embed)
     
-
-@tree.command(name = 'view', description = 'Test view', guild=discord.Object(id=ENIGMA_GUILD))
-async def view(ctx:Interaction):
-  view = McMoveView(timeout=180)
-  # button:Button = discord.ui.Button(label="Click me")
-  # view.add_item(button)
-  view.add_buttons(rules.moves)
-  # view.message = ctx.message
-  # view.moves = rules.moves
-
-  await ctx.response.send_message(view=view)
-  print("- done")
-
-  # # This waits for the view to finish. Either Timeout, or one of the buttons are pressed
-  # # No, it fails
-  # await view.wait()
-
-  # if (view.foo is None):
-  #   print("Timeout")
-  # elif view.foo is True:
-  #   print("Ok")
-  # else:
-  #   print("Cancel")
 
 
 
