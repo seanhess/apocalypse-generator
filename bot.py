@@ -93,8 +93,8 @@ async def character(ctx:Interaction, name:str, command:Command = '_', stat:int =
   elif command == 'CHA':
     char.CHA = Stat(command, stat)
 
-  view = CharacterView(timeout=10)
-  view.set_character(char)
+  view = CharacterView(lambda: characters_save(characters))
+  view.update(char)
 
   characters_save(characters)
 

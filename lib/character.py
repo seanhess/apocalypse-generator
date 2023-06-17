@@ -4,7 +4,7 @@ from discord import Interaction
 from discord.ui import TextInput, View, Modal
 from lib.dungeon_world import Character, Stat
 from lib.component import DynButton
-from typing import Callable
+from typing import Callable, List, Dict, cast
 from discord.components import ActionRow
 
 def chaRoll(bonus, name):
@@ -29,10 +29,18 @@ def chaRoll(bonus, name):
 class CharacterView(discord.ui.View):
 
     character: Character
+    on_edit: Callable
 
-    def set_character(self, char:Character):
+    def __init__(self, on_edit_:Callable):
+        super().__init__()
+        self.on_edit = on_edit_
+
+
+    def update(self, char:Character):
+        for item in self.children:
+            self.remove_item(item)
+
         self.character = char
-        print("CHARACTER!")
 
         # item = discord.ui.Item()
         btn_str = StatButton("STR", char.STR, lambda i: self.click(i, "STR", char.STR))
@@ -57,8 +65,9 @@ class CharacterView(discord.ui.View):
         # self.add_item(txt_name)
 
     async def click(self, interaction:Interaction, name:str, stat:Stat):
+        # print("CLICK")
         # How to edit existing message
-        # await interaction.response.edit_message(content="Clicked Strength", view=self)
+        # await interaction.response.edit_message(content="Clicked " + stat.name, view=self)
 
         # How to add a new message
         embed = chaRoll(stat.to_bonus(), name)
@@ -67,26 +76,51 @@ class CharacterView(discord.ui.View):
 
     async def edit(self, interaction:Interaction):
         print("EDIT")
-        modal = Questionnaire()
+        modal = CharacterEdit(self.character)
         modal.on_submit = self.edited # type: ignore
         await interaction.response.send_modal(modal)
-        print("AFTER")
 
 
     async def edited(self, interaction:Interaction):
-        print("EDITED")
-        await interaction.response.edit_message(content="Edited :)", view=self)
+        print("EDITED", interaction.data)
+
+        comps = interaction.data.get("components")[0].get("components") # type: ignore
+        name = comps[0].get("value")
+        print("NAME", name)
+        self.character.name = name
+        self.update(self.character)
+
+        self.on_edit()
+        await interaction.response.edit_message(content="Edited!", view=self)
 
 
+# class CharacterEdit(Modal, title="Edit Character"):
+
+#     character:Character
+
+class CharacterEdit(Modal, title='Edit Character'):
+    # name = TextInput[View](label='Name')
+    # str = TextInput[View](label='STR')
+    # dex = TextInput[View](label='DEX')
+    # con = TextInput[View](label='CON')
+    # int = TextInput[View](label='INT')
+    # wis = TextInput[View](label='WIS')
+    # cha = TextInput[View](label='CHA')
+
+    def __init__(self, char:Character):
+        super().__init__()
+        # self.character = char
+
+        name_input = TextInput[View](label='Name', placeholder='Dargon McCharacter', default=char.name)
+        self.add_item(name_input)
+
+        dex_input = TextInput[View](label='DEX', default=str(char.DEX.value))
+        str_input = TextInput[View](label='STR', default=str(char.STR.value))
+
+        self.add_item(dex_input)
+        self.add_item(str_input)
 
 
-
-class Questionnaire(Modal, title='Questionnaire Response'):
-    name = TextInput[View](label='Name')
-    answer = TextInput[View](label='Answer', style=discord.TextStyle.paragraph)
-
-    async def on_submit(self, interaction: discord.Interaction):
-        await interaction.response.send_message(f'Thanks for your response, {self.name}!', ephemeral=True)
 
 
 class StatButton(discord.ui.Button):
