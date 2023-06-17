@@ -3,8 +3,10 @@ import os
 import discord
 import random
 
-import lib.dungeon_world
+from lib.dungeon_world import Character, Name, Stat
 import lib.component
+from lib.storage import character_find
+from lib.character import CharacterView
 from discord.emoji import Emoji
 from discord.enums import ButtonStyle
 from discord.partial_emoji import PartialEmoji
@@ -14,7 +16,7 @@ from rules import Move
 from discord import app_commands, SelectOption, Interaction
 # from discord.ext import commands
 # from discord.app_commands import Choice
-from typing import Any, Literal, Optional, Union, List
+from typing import Any, Literal, Optional, Union, List, Dict
 
 ENIGMA_GUILD=1105180075558707293
 
@@ -27,55 +29,20 @@ client = discord.Client(intents=intents)
 
 tree:Any = app_commands.CommandTree(client)
 
+characters:Dict[Name, Character] = {}
+
+def main():
+  print("Apocalypse Bot!")
+  print("===============")
+  TOKEN=os.getenv("DISCORD_TOKEN")
+  client.run(TOKEN if TOKEN else "")
+
+
 @client.event
 async def on_ready():
   await tree.sync(guild=discord.Object(id=ENIGMA_GUILD))
-  print("Apocalypse Bot is revved up and ready to go!")
+  print(" |0_0| Meep Moop")
 
-
-
-class McMoveView(discord.ui.View):
-
-  moves: list[Move]
-
-  def add_buttons(self, moves:list[Move]):
-    self.moves = moves
-    for move in moves:
-      button = lib.component.DynButton(label=move.name, style=discord.ButtonStyle.green)
-      button.set_callback(self.callback)
-      self.add_item(button)
-
-  async def callback(self, interaction:Interaction):
-    print("CALLED!", self)
-
-    children:List[lib.component.DynButton] = self.children # type: ignore
-    
-    # Disable all buttons
-    for item in children:
-        item.disabled = True
-
-    # Update the message
-    await interaction.response.edit_message(content="Buttons are now disabled", view=self)
-
-  async def on_timeout(self) -> None:
-    # await self.disable_all_items()
-    # if self.message:
-    #   await self.message.channel.send("Timeout")
-    # else:
-    print("Timeout!")
-
-  # @discord.ui.button(label="Hello", style=discord.ButtonStyle.success)
-  # async def hello(self, interaction:Interaction, button: discord.ui.Button):
-  #   # This sends another message
-  #   print("- CLICK HELLO")
-  #   await interaction.response.send_message("World")
-  #   print("- AFTER HELLO")
-
-  # @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red)
-  # async def cancel(self, interaction:Interaction, button: discord.ui.Button):
-  #   print("- CLICK CANCEL")
-  #   await self.disable_all_items()
-  #   await interaction.response.edit_message(view=self)
 
 
 
@@ -94,8 +61,10 @@ async def move(ctx:Interaction, faction:Optional[Faction]):
   output = "\n".join(names)
   await ctx.response.send_message(output)
 
-@tree.command(name='roll', description='roll some dice', guild=discord.Object(id=ENIGMA_GUILD))
-async def roll(ctx: Interaction, dice: str):
+@tree.command(name = 'roll', description = 'roll some dice', guild=discord.Object(id=ENIGMA_GUILD))
+async def roll(ctx:Interaction, dice:str):
+
+  total = 0
   lstDice = []
   count, sides = dice.split('d')
   if '+' in sides:
@@ -124,7 +93,7 @@ async def roll(ctx: Interaction, dice: str):
 @tree.command(name = 'view', description = 'Test view', guild=discord.Object(id=ENIGMA_GUILD))
 async def view(ctx:Interaction):
   view = McMoveView(timeout=180)
-  button:Button = discord.ui.Button(label="Click me")
+  # button:Button = discord.ui.Button(label="Click me")
   # view.add_item(button)
   view.add_buttons(rules.moves)
   # view.message = ctx.message
@@ -207,6 +176,50 @@ def mc_moves(faction:Optional[Faction]) -> list[Move]:
 #   )
 #   return
 
+class McMoveView(discord.ui.View):
 
-TOKEN=os.getenv("DISCORD_TOKEN")
-client.run(TOKEN if TOKEN else "")
+  moves: list[Move]
+
+  def add_buttons(self, moves:list[Move]):
+    self.moves = moves
+    for move in moves:
+      button = lib.component.DynButton(label=move.name, callback=self.callback, style=discord.ButtonStyle.green)
+      self.add_item(button)
+
+  async def callback(self, interaction:Interaction):
+    print("CALLED!", self)
+
+    children:List[lib.component.DynButton] = self.children # type: ignore
+    
+    # Disable all buttons
+    for item in children:
+        item.disabled = True
+
+    # Update the message
+    await interaction.response.edit_message(content="Buttons are now disabled", view=self)
+
+  async def on_timeout(self) -> None:
+    # await self.disable_all_items()
+    # if self.message:
+    #   await self.message.channel.send("Timeout")
+    # else:
+    print("Timeout!")
+
+  # @discord.ui.button(label="Hello", style=discord.ButtonStyle.success)
+  # async def hello(self, interaction:Interaction, button: discord.ui.Button):
+  #   # This sends another message
+  #   print("- CLICK HELLO")
+  #   await interaction.response.send_message("World")
+  #   print("- AFTER HELLO")
+
+  # @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red)
+  # async def cancel(self, interaction:Interaction, button: discord.ui.Button):
+  #   print("- CLICK CANCEL")
+  #   await self.disable_all_items()
+  #   await interaction.response.edit_message(view=self)
+
+
+
+
+
+main()
