@@ -3,8 +3,9 @@ import os
 import discord
 import random
 
-import lib.dungeon_world
+from lib.dungeon_world import Character, Name
 import lib.component
+from lib.storage import character_find
 from discord.emoji import Emoji
 from discord.enums import ButtonStyle
 from discord.partial_emoji import PartialEmoji
@@ -14,7 +15,7 @@ from rules import Move
 from discord import app_commands, SelectOption, Interaction
 # from discord.ext import commands
 # from discord.app_commands import Choice
-from typing import Any, Literal, Optional, Union, List
+from typing import Any, Literal, Optional, Union, List, Dict
 
 ENIGMA_GUILD=1105180075558707293
 
@@ -27,10 +28,19 @@ client = discord.Client(intents=intents)
 
 tree:Any = app_commands.CommandTree(client)
 
+characters:Dict[Name, Character] = {}
+
+def main():
+  print("Apocalypse Bot!")
+  print("===============")
+  TOKEN=os.getenv("DISCORD_TOKEN")
+  client.run(TOKEN if TOKEN else "")
+
+
 @client.event
 async def on_ready():
   await tree.sync(guild=discord.Object(id=ENIGMA_GUILD))
-  print("Apocalypse Bot is revved up and ready to go!")
+  print(" |0_0| Meep Moop")
 
 
 
@@ -93,6 +103,13 @@ async def move(ctx:Interaction, faction:Optional[Faction]):
   names = map(lambda m: "move: " + m.name, rand_moves)
   output = "\n".join(names)
   await ctx.response.send_message(output)
+
+
+@tree.command(name = 'character', description = 'Create or select a character', guild=discord.Object(id=ENIGMA_GUILD))
+async def character(ctx:Interaction, name:str):
+
+  char = character_find(characters, name)
+  await ctx.response.send_message("HI:" + char.name)
 
 @tree.command(name = 'roll', description = 'roll some dice', guild=discord.Object(id=ENIGMA_GUILD))
 async def roll(ctx:Interaction, dice:str):
@@ -199,5 +216,6 @@ def mc_moves(faction:Optional[Faction]) -> list[Move]:
 #   return
 
 
-TOKEN=os.getenv("DISCORD_TOKEN")
-client.run(TOKEN if TOKEN else "")
+
+
+main()
