@@ -199,6 +199,5 @@ def mc_moves(faction:Optional[Faction]) -> list[Move]:
 #   return
 
 
-
-
-
+TOKEN=os.getenv("DISCORD_TOKEN")
+client.run(TOKEN if TOKEN else "")
