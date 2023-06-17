@@ -1,10 +1,30 @@
 import discord
+import random
 from discord import Interaction
 from discord.ui import TextInput, View, Modal
 from lib.dungeon_world import Character, Stat
 from lib.component import DynButton
 from typing import Callable
 from discord.components import ActionRow
+
+def chaRoll(bonus, name):
+  total = 0
+  lstDice = []
+  bonus = bonus
+  
+  for num in range(2):
+    die = random.randint(1, 6)
+    lstDice.append(str(die))
+    total = total + die
+
+  if bonus != 0: embed = discord.Embed(title="Rolled " + name +" (+" + bonus + ')', color=discord.Color.dark_red())
+  embed = discord.Embed(title="Rolled 2d6", color=discord.Color.yellow()) #color can change to the characters selected color
+  embed.add_field(name="Total", value=total, inline=False)
+
+  for num, item in enumerate(lstDice):
+    embed.add_field(name="Die " + str(num), value=item, inline=True)
+  return embed
+
 
 class CharacterView(discord.ui.View):
 
@@ -41,7 +61,8 @@ class CharacterView(discord.ui.View):
         # await interaction.response.edit_message(content="Clicked Strength", view=self)
 
         # How to add a new message
-        await interaction.response.send_message("CLICKED " + name)
+        embed = chaRoll(stat.to_bonus(), name)
+        await interaction.response.send_message(embed = embed)
 
     # async def edit(self, interaction:Interaction):
     #     print("EDIT")
