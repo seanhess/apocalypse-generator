@@ -32,7 +32,7 @@ class Stat():
     @classmethod
     def decode(cls, input:str):
         name, rest = input.split("=")
-        return Stat(name, int(input))
+        return Stat(name, int(rest))
 
 class Character():
 
@@ -70,3 +70,4 @@ class Character():
         char.WIS = wis
         char.INT = int
         char.CHA = cha
+        return char

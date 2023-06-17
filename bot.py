@@ -5,7 +5,7 @@ import random
 
 from lib.dungeon_world import Character, Name, Stat
 import lib.component
-from lib.storage import character_find
+from lib.storage import character_find, characters_load, characters_save
 from lib.character import CharacterView
 from discord.emoji import Emoji
 from discord.enums import ButtonStyle
@@ -32,8 +32,11 @@ tree:Any = app_commands.CommandTree(client)
 characters:Dict[Name, Character] = {}
 
 def main():
+  global characters
   print("Apocalypse Bot!")
   print("===============")
+  characters = characters_load()
+  print(characters)
   TOKEN=os.getenv("DISCORD_TOKEN")
   client.run(TOKEN if TOKEN else "")
 
@@ -41,6 +44,7 @@ def main():
 @client.event
 async def on_ready():
   await tree.sync(guild=discord.Object(id=ENIGMA_GUILD))
+  print("CHARACTERS", characters)
   print(" |0_0| Meep Moop")
 
 
@@ -62,11 +66,12 @@ async def move(ctx:Interaction, faction:Optional[Faction]):
   await ctx.response.send_message(output)
 
 
-Command = Literal['Load', 'STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA']
+Command = Literal['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA', '']
 
 @tree.command(name = 'character', description = 'Create or select a character', guild=discord.Object(id=ENIGMA_GUILD))
-async def character(ctx:Interaction, name:str, command:Command = 'Load', stat:int = 10):
+async def character(ctx:Interaction, name:str, command:Command = '', stat:int = 10):
 
+  print("CHARACTER", characters)
   char = character_find(characters, name)
 
   if command == 'STR':
@@ -89,6 +94,9 @@ async def character(ctx:Interaction, name:str, command:Command = 'Load', stat:in
 
   view = CharacterView(timeout=10)
   view.set_character(char)
+
+  characters_save(characters)
+
   await ctx.response.send_message(char.name, view=view)
 
 
