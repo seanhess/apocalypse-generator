@@ -20,7 +20,7 @@ def chaRoll(bonus:Bonus, name:str):
     embed.add_field(name="Total", value=total, inline=False)
 
     for num, item in enumerate(lstDice):
-        embed.add_field(name="Die " + str(num), value=item, inline=True)
+        embed.add_field(name="Die " + str(num+1), value=item, inline=True)
     return embed
 
 
