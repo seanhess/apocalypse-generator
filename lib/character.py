@@ -83,9 +83,21 @@ class CharacterView(discord.ui.View):
     async def edited(self, interaction:Interaction):
         print("EDITED", interaction.data)
 
-        comps = interaction.data.get("components")[0].get("components") # type: ignore
-        name = comps[0].get("value")
+        name: str = interaction.data.get("components")[0].get("components")[0].get("value") # type: ignore
         print("NAME", name)
+
+        atts: str = interaction.data.get("components")[1].get("components")[0].get("value") # type: ignore
+        print("ATTS", atts)
+
+        [att_str, att_dex, att_con, att_int, att_wis, att_cha] = atts.split()
+
+        self.character.STR = Stat("STR", int(att_str))
+        self.character.DEX = Stat("DEX", int(att_dex))
+        self.character.CON = Stat("CON", int(att_con))
+        self.character.INT = Stat("INT", int(att_int))
+        self.character.WIS = Stat("WIS", int(att_wis))
+        self.character.CHA = Stat("CHA", int(att_cha))
+
         self.character.name = name
         self.update(self.character)
 
@@ -113,11 +125,13 @@ class CharacterEdit(Modal, title='Edit Character'):
         name_input = TextInput[View](label='Name', placeholder='Dargon McCharacter', default=char.name)
         self.add_item(name_input)
 
-        dex_input = TextInput[View](label='DEX', default=str(char.DEX.value))
-        str_input = TextInput[View](label='STR', default=str(char.STR.value))
+        stats = [char.STR.value, char.DEX.value, char.CON.value, char.INT.value, char.WIS.value, char.CHA.value]
+        line = '\t'.join(str(stat) for stat in stats)
 
-        self.add_item(dex_input)
-        self.add_item(str_input)
+        att_input = TextInput[View](label="STR\tDEX\tCON\tINT\tWIS\tCHA", default=line)
+
+        self.add_item(att_input)
+
 
 
 
