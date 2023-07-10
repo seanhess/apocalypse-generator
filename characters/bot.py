@@ -6,7 +6,7 @@ import random
 from lib.dungeon_world import Character, Name, Stat
 import lib.component
 from lib.storage import character_find, characters_load, characters_save
-from lib.character import CharacterView, chaEmbed
+from lib.character import CharacterView, CharacterEdit, chaEmbed
 from discord.emoji import Emoji
 from discord.enums import ButtonStyle
 from discord.partial_emoji import PartialEmoji
@@ -94,13 +94,28 @@ async def character(ctx:Interaction, name:str):
   #   char.CHA = Stat(command, stat)
   embed = chaEmbed(char)
 
-  view = CharacterView(lambda: characters_save(characters))
+  view = CharacterView(lambda i: edit(char, i))
   view.update(char)
 
   characters_save(characters)
 
   await ctx.response.send_message(embed=embed, view=view)
 
+
+async def edit(char: Character, interaction:Interaction):
+    print("EDIT")
+    modal = CharacterEdit(char, edited)
+    await interaction.response.send_modal(modal)
+
+async def edited(char:Character, interaction:Interaction):
+  print("EDITED")
+  view = CharacterView(lambda i: edit(char, i))
+  view.update(char)
+
+  embed = chaEmbed(char)
+
+  # characters_save(characters)
+  await interaction.response.edit_message(view=view, embed=embed)
 
 
 @tree.command(name = 'roll', description = 'roll some dice', guild=discord.Object(id=ENIGMA_GUILD))

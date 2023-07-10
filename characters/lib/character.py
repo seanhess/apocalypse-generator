@@ -32,9 +32,9 @@ class CharacterView(discord.ui.View):
     character: Character
     on_edit: Callable
 
-    def __init__(self, on_edit_:Callable):
+    def __init__(self, on_edit:Callable):
         super().__init__(timeout=None)
-        self.on_edit = on_edit_
+        self.on_edit = on_edit
 
 
     def update(self, char:Character):
@@ -51,7 +51,7 @@ class CharacterView(discord.ui.View):
         btn_wis = StatButton("WIS", char.WIS, lambda i: self.click(i, "WIS", char.WIS))
         btn_cha = StatButton("CHA", char.CHA, lambda i: self.click(i, "CHA", char.CHA))
 
-        btn_name = DynButton(label=char.name, style=discord.ButtonStyle.primary, callback=self.edit)
+        btn_name = DynButton(label=char.name, style=discord.ButtonStyle.primary, callback=self.on_edit)
         self.add_item(btn_name)
 
         self.add_item(btn_str)
@@ -76,58 +76,34 @@ class CharacterView(discord.ui.View):
         # await interaction.response.edit_message(content="Rolled", view=self)
 
 
-    async def edit(self, interaction:Interaction):
-        print("EDIT")
-        modal = CharacterEdit(self.character)
-        modal.on_submit = self.edited # type: ignore
-        await interaction.response.send_modal(modal)
+    # async def edit(self, interaction:Interaction):
+    #     print("EDIT")
+    #     modal = CharacterEdit(self.character)
+    #     modal.on_submit = self.edited # type: ignore
+    #     await interaction.response.send_modal(modal)
 
 
-    async def edited(self, interaction:Interaction):
-        print("EDITED", interaction.data)
+    # async def edited(self, interaction:Interaction):
+    #     print("EDITED", interaction.data)
 
-        name: str = interaction.data.get("components")[0].get("components")[0].get("value") # type: ignore
-        print("NAME", name)
+    #     self.character.hp = int(hp)
+    #     self.character.name = name
+    #     self.update(self.character)
 
-        atts: str = interaction.data.get("components")[1].get("components")[0].get("value") # type: ignore
-        print("ATTS", atts)
-
-        hp: str = interaction.data.get("components")[2].get("components")[0].get("value") # type: ignore
-        print("HP", hp)
-
-        [att_str, att_dex, att_con, att_int, att_wis, att_cha] = atts.split()
-
-        self.character.STR = Stat("STR", int(att_str))
-        self.character.DEX = Stat("DEX", int(att_dex))
-        self.character.CON = Stat("CON", int(att_con))
-        self.character.INT = Stat("INT", int(att_int))
-        self.character.WIS = Stat("WIS", int(att_wis))
-        self.character.CHA = Stat("CHA", int(att_cha))
-
-        self.character.hp = int(hp)
-
-        self.character.name = name
-        self.update(self.character)
-
-        self.on_edit()
-        await interaction.response.edit_message(content="Edited!", view=self)
+    #     self.on_edit()
+    #     await interaction.response.edit_message(content="Edited!", view=self)
 
 
-# class CharacterEdit(Modal, title="Edit Character"):
 
-#     character:Character
 
 class CharacterEdit(Modal, title='Edit Character'):
-    # name = TextInput[View](label='Name')
-    # str = TextInput[View](label='STR')
-    # dex = TextInput[View](label='DEX')
-    # con = TextInput[View](label='CON')
-    # int = TextInput[View](label='INT')
-    # wis = TextInput[View](label='WIS')
-    # cha = TextInput[View](label='CHA')
 
-    def __init__(self, char:Character):
+    on_edit: Callable
+
+    def __init__(self, char:Character, on_edit:Callable):
         super().__init__()
+        self.on_edit = on_edit
+        self.on_submit = self.edited # type: ignore
         # self.character = char
 
         name_input = TextInput[View](label='Name', placeholder='Dargon McCharacter', default=char.name)
@@ -143,7 +119,31 @@ class CharacterEdit(Modal, title='Edit Character'):
         self.add_item(hp_input)
 
         
+    async def edited(self, interaction:Interaction):
+        print("EDITED", interaction.data)
 
+        name: str = interaction.data.get("components")[0].get("components")[0].get("value") # type: ignore
+        print("NAME", name)
+
+        atts: str = interaction.data.get("components")[1].get("components")[0].get("value") # type: ignore
+        print("ATTS", atts)
+
+        hp: str = interaction.data.get("components")[2].get("components")[0].get("value") # type: ignore
+        print("HP", hp)
+
+        [att_str, att_dex, att_con, att_int, att_wis, att_cha] = atts.split()
+
+        edit = Character(name)
+        edit.STR.value = int(att_str)
+        edit.DEX.value = int(att_dex)
+        edit.CON.value = int(att_con)
+        edit.INT.value = int(att_int)
+        edit.WIS.value = int(att_wis)
+        edit.CHA.value = int(att_cha)
+        edit.name = name
+        edit.hp = int(hp)
+
+        await self.on_edit(edit, interaction)
 
 
 
