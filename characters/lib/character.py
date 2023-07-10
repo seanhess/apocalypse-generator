@@ -30,7 +30,7 @@ class CharacterView(discord.ui.View):
     on_edit: Callable
 
     def __init__(self, on_edit_:Callable):
-        super().__init__()
+        super().__init__(timeout=None)
         self.on_edit = on_edit_
 
 

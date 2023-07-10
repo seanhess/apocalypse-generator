@@ -67,31 +67,31 @@ async def move(ctx:Interaction, faction:Optional[Faction]):
   await ctx.response.send_message(output)
 
 
-Command = Literal['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA', '_']
+# Command = Literal['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA', '_']
 
 @tree.command(name = 'character', description = 'Create or select a character', guild=discord.Object(id=ENIGMA_GUILD))
-async def character(ctx:Interaction, name:str, command:Command = '_', stat:int = 10):
+async def character(ctx:Interaction, name:str):
 
   print("CHARACTER", characters)
   char = character_find(characters, name)
 
-  if command == 'STR':
-    char.STR = Stat(command, stat)
+  # if command == 'STR':
+  #   char.STR = Stat(command, stat)
 
-  elif command == 'DEX':
-    char.DEX = Stat(command, stat)
+  # elif command == 'DEX':
+  #   char.DEX = Stat(command, stat)
 
-  elif command == 'CON':
-    char.CON = Stat(command, stat)
+  # elif command == 'CON':
+  #   char.CON = Stat(command, stat)
 
-  elif command == 'INT':
-    char.INT = Stat(command, stat)
+  # elif command == 'INT':
+  #   char.INT = Stat(command, stat)
 
-  elif command == 'WIS':
-    char.WIS = Stat(command, stat)
+  # elif command == 'WIS':
+  #   char.WIS = Stat(command, stat)
 
-  elif command == 'CHA':
-    char.CHA = Stat(command, stat)
+  # elif command == 'CHA':
+  #   char.CHA = Stat(command, stat)
 
   view = CharacterView(lambda: characters_save(characters))
   view.update(char)
