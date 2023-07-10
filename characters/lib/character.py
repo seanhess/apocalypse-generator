@@ -25,6 +25,7 @@ def chaRoll(bonus:Bonus, name:str):
 
 def chaEmbed(char:Character):
     embed = discord.Embed(title=char.name, color=discord.Color.blurple())
+    embed.add_field(name="HP", value=char.hp, inline=False)
     return embed
 
 class CharacterView(discord.ui.View):
