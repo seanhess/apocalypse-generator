@@ -6,7 +6,7 @@ import random
 from lib.dungeon_world import Character, Name, Stat
 import lib.component
 from lib.storage import character_find, characters_load, characters_save
-from lib.character import CharacterView
+from lib.character import CharacterView, chaEmbed
 from discord.emoji import Emoji
 from discord.enums import ButtonStyle
 from discord.partial_emoji import PartialEmoji
@@ -92,13 +92,14 @@ async def character(ctx:Interaction, name:str):
 
   # elif command == 'CHA':
   #   char.CHA = Stat(command, stat)
+  embed = chaEmbed(char)
 
   view = CharacterView(lambda: characters_save(characters))
   view.update(char)
 
   characters_save(characters)
 
-  await ctx.response.send_message(char.name, view=view)
+  await ctx.response.send_message(embed=embed, view=view)
 
 
 

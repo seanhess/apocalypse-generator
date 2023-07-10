@@ -38,6 +38,9 @@ class Character():
 
     name: str
 
+    hp: int
+    dmg: int
+
     STR: Stat
     DEX: Stat
     CON: Stat
@@ -47,6 +50,8 @@ class Character():
 
     def __init__(self, name:str):
         self.name = name
+        self.hp = 0
+        self.dmg = 0
         self.STR = Stat("STR", 10)
         self.DEX = Stat("DEX", 10)
         self.CON = Stat("CON", 10)
